@@ -2,13 +2,53 @@ const express = require('express');
 
 const router = express.Router();
 
+const fs = require('node:fs');
+const path = require('node:path');
+
 // The todos are kept in memory, so they reset every time the server restarts.
 // Each todo looks like this: { id: 1, title: 'Read the README', done: true }
-let todos = [
+// Location of the JSON file
+const DATA_FILE = process.env.TODOS_FILE || path.join(__dirname, '..', 'data', 'todos.json');
+
+const SEED_TODOS = [
   { id: 1, title: 'Read the README', done: true },
-  { id: 2, title: 'Build the todo API', done: false },
+  { id: 2, title: 'Build the todo API', done: false }
 ];
-let nextId = 3;
+
+// Load todos from the JSON file
+let todos = loadTodos();
+
+// Generate the next ID
+let nextId = todos.reduce((max, todo) => Math.max(max, todo.id), 0) + 1;
+
+function loadTodos() {
+  // try to read + JSON.parse; return the seed list if the file doesn't exist
+  try {
+    const data = fs.readFileSync(DATA_FILE, 'utf8');
+    const parsed = JSON.parse(data);
+
+    if (!Array.isArray(parsed)) {
+      throw new Error(`${DATA_FILE} should contain a JSON array of todos`);
+    }
+
+    return parsed;
+  } catch (error) {
+    if (error.code === 'ENOENT') {
+      return [...SEED_TODOS];
+    }
+
+    throw error;
+  }
+}
+
+function saveTodos() {
+  // make sure the data/ folder exists, then write JSON.stringify(todos, null, 2)
+  const directory = path.dirname(DATA_FILE);
+
+  fs.mkdirSync(directory, { recursive: true });
+
+  fs.writeFileSync(DATA_FILE, JSON.stringify(todos, null, 2));
+}
 
 // =====================================================================
 // PART 1: build these (see "Part 1: Build the API" in README.md)
@@ -44,6 +84,7 @@ router.post('/', (req, res) => {
 
   //saving the todo:
   todos.push(newToDo);
+  saveTodos();
 
   //sending confirmation response
   res.status(201).json(newToDo)
@@ -95,6 +136,7 @@ router.patch('/:id', (req, res) => {
     todo.done = done;
   }
 
+  saveTodos();
   // Return the updated todo
   res.status(200).json(todo);
 });
@@ -115,6 +157,7 @@ router.delete('/:id', (req, res) => {
 
     // Remove the todo from the array
     todos.splice(index, 1);
+    saveTodos();
 
     // Send a response with no content
     res.sendStatus(204);
