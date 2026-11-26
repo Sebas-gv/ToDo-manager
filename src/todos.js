@@ -1,0 +1,95 @@
+const express = require('express');
+
+const router = express.Router();
+
+// The todos are kept in memory, so they reset every time the server restarts.
+// Each todo looks like this: { id: 1, title: 'Read the README', done: true }
+let todos = [
+  { id: 1, title: 'Read the README', done: true },
+  { id: 2, title: 'Build the todo API', done: false },
+];
+let nextId = 3;
+
+// =====================================================================
+// PART 1: build these (see "Part 1: Build the API" in README.md)
+// =====================================================================
+
+// GET /todos: list all todos.
+// This one is done for you, as an example.
+router.get('/', (req, res) => {
+  res.json(todos);
+});
+
+// POST /todos: create a todo.
+// TODO: see "1. Create a todo" in README.md
+router.post('/', (req, res) => {
+
+  const title = req.body?.title;
+  console.log('Request body:', req.body);
+  console.log('Received title:', title);
+
+  //We check if the tittle of the new ToDo is a string and is not empty
+  if(typeof title !== 'string' || title.trim() === ''){
+    return res.status(400).json({
+      //throwing an according error message
+      error: 'Title is required and cannot be an empty script'
+    });
+  }
+
+  const newToDo= {
+    id: nextId++,
+    title: title.trim(),
+    done: false
+  };
+
+  //saving the todo:
+  todos.push(newToDo);
+
+  //sending confirmation response
+  res.status(201).json(newToDo)
+});
+
+// PATCH /todos/:id: change a todo's title and/or mark it done.
+// TODO: see "2. Update a todo" in README.md
+router.patch('/:id', (req, res) => {
+  res.status(501).json({ error: `PATCH /todos/${req.params.id} is not implemented yet` });
+});
+
+// DELETE /todos/:id: delete a todo.
+// TODO: see "3. Delete a todo" in README.md
+router.delete('/:id', (req, res) => {
+  res.status(501).json({ error: `DELETE /todos/${req.params.id} is not implemented yet` });
+});
+
+// =====================================================================
+// PART 2: review this (see "Part 2: Review the AI's code" in README.md)
+//
+// We asked an AI assistant:
+//   "Add an endpoint that returns one todo by its id, and an endpoint that
+//    returns stats: how many todos there are, how many are done, and the
+//    percentage that are done."
+//
+// This is the code it wrote. It looks reasonable, but it has at least
+// three bugs. Find them, fix them, and describe each one in your notes.
+// =====================================================================
+
+// GET /todos/:id: get one todo
+router.get('/:id', (req, res) => {
+  const todo = todos.find((t) => t.id === req.params.id);
+  if (!todo) {
+    res.status(404).json({ error: 'Todo not found' });
+  }
+  res.json({ id: todo.id, title: todo.title, done: todo.done });
+});
+
+// GET /todos/stats: count the todos
+router.get('/stats', (req, res) => {
+  const done = todos.filter((t) => t.done).length;
+  res.json({
+    total: todos.length,
+    done: done,
+    percentDone: Math.round((done / todos.length) * 100),
+  });
+});
+
+module.exports = router;
