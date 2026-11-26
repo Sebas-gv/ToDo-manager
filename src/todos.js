@@ -24,7 +24,7 @@ router.get('/', (req, res) => {
 // TODO: see "1. Create a todo" in README.md
 router.post('/', (req, res) => {
 
-  const title = req.body?.title;
+  const title = req.body.title;
   //console.log('Request body:', req.body);
   //console.log('Received title:', title);
 
@@ -52,6 +52,8 @@ router.post('/', (req, res) => {
 // PATCH /todos/:id: change a todo's title and/or mark it done.
 // TODO: see "2. Update a todo" in README.md
 router.patch('/:id', (req, res) => {
+  const title = req.body.title;
+  const done = req.body.done;
   const id = Number(req.params.id);
   const todo = todos.find((t) => t.id === id);
 
@@ -131,22 +133,23 @@ router.delete('/:id', (req, res) => {
 // =====================================================================
 
 // GET /todos/:id: get one todo
-router.get('/:id', (req, res) => {
-  const todo = todos.find((t) => t.id === req.params.id);
-  if (!todo) {
-    res.status(404).json({ error: 'Todo not found' });
-  }
-  res.json({ id: todo.id, title: todo.title, done: todo.done });
-});
-
-// GET /todos/stats: count the todos
 router.get('/stats', (req, res) => {
   const done = todos.filter((t) => t.done).length;
   res.json({
     total: todos.length,
     done: done,
-    percentDone: Math.round((done / todos.length) * 100),
+    percentDone: todos.length === 0 ? 0 : Math.round((done / todos.length) * 100),
   });
 });
 
+router.get('/:id', (req, res) => {
+  const id = Number(req.params.id);
+  const todo = todos.find((t) => t.id === id);
+  if (!todo) {
+    return res.status(404).json({ error: 'Todo not found' });
+  }
+  res.json({ id: todo.id, title: todo.title, done: todo.done });
+});
+
+// GET /todos/stats: count the todos
 module.exports = router;
