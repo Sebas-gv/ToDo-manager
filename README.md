@@ -191,25 +191,48 @@ Good luck, and have fun with it!
 ### How far I got
 
 _What works? What doesn't?_
+I implemented the main Todo API features:
+
+GET /todos to retrieve all todos.
+
+POST /todos to create a todo, with title validation.
+
+PATCH /todos/:id to update a todo, with validation for title and done.
+
+DELETE /todos/:id to delete a todo.
+
+GET /todos/:id to retrieve a specific todo.
+
+GET /todos/stats to retrieve statistics.
+
+I also create some test cases for the Apis and now the program saves the todos into a json file instead of the local storage
 
 ### My decision: `PATCH` with no `title` or `done`
 
 _What does your API do, and why?_
 
+My API returns 400 Bad Request if the request does not include either title or done.
+
+I chose this behavior because a PATCH request should make at least one change. If neither field is provided, there is nothing to update, so I return an error instead of sending back an unchanged todo.
+
 ### Part 2: bugs I found
 
 | Bug | How I found it | How I fixed it |
-| --- | --- | --- |
-| | | |
+| The ID from the URL was a string, but todo IDs were numbers.| I used the hint in the readMe| I used Number(req.params.id) to convert the ID.|
+| The /stats route was after the /:id route.|I noticed that /stats could be interpreted as an ID. |I moved /stats above /:id. |
+|The code continued after returning a 404 response. |I noticed the return was missing | I added return after the 404 response.|
+| The percentage calculation could divide by zero when there were no todos | This one was spotted by claude| I added a condition to return 0 when the total is zero.|
 
 ### How I used AI
 
 _Which tools did you use, and for what? What did they get wrong? What did you change or reject? Write "None" if you didn't use any._
+I used Claude to understand the requirements, review my code, explain JavaScript and Express concepts, help identify bugs, and guide me through writing tests and implementing JSON file storage.
 
 ### What I'd improve with more time
+Maybe error handeling and go one step ahead and instead of json saving the todos in a database
 
 ### What I got stuck on
-
+I forgot to declare title and done in the patch and post methods so it was giving me errors, I had also some issues with file paths when implementing JSON storage, because the file was not in the location where the code expected it.
 ### Time spent
 
-_Roughly how many hours?_
+I took about 3 and a half hours
