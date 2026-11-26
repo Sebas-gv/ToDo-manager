@@ -218,10 +218,11 @@ I chose this behavior because a PATCH request should make at least one change. I
 ### Part 2: bugs I found
 
 | Bug | How I found it | How I fixed it |
-| The ID from the URL was a string, but todo IDs were numbers.| I used the hint in the readMe| I used Number(req.params.id) to convert the ID.|
-| The /stats route was after the /:id route.|I noticed that /stats could be interpreted as an ID. |I moved /stats above /:id. |
-|The code continued after returning a 404 response. |I noticed the return was missing | I added return after the 404 response.|
-| The percentage calculation could divide by zero when there were no todos | This one was spotted by claude| I added a condition to return 0 when the total is zero.|
+| --- | --- | --- |
+| The ID from the URL was a string, but todo IDs were numbers. | I used the hint in the readMe. | I used `Number(req.params.id)` to convert the ID. |
+| The `/stats` route was after the `/:id` route. | I noticed that `/stats` could be interpreted as an ID. | I moved `/stats` above `/:id`. |
+| The code continued after returning a 404 response. | I noticed the `return` was missing. | I added `return` after the 404 response. |
+| The percentage calculation could divide by zero when there were no todos. | This one was spotted by Claude. | I added a condition to return 0 when the total is zero. |
 
 ### How I used AI
 
