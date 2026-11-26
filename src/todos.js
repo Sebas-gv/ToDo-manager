@@ -25,8 +25,8 @@ router.get('/', (req, res) => {
 router.post('/', (req, res) => {
 
   const title = req.body?.title;
-  console.log('Request body:', req.body);
-  console.log('Received title:', title);
+  //console.log('Request body:', req.body);
+  //console.log('Received title:', title);
 
   //We check if the tittle of the new ToDo is a string and is not empty
   if(typeof title !== 'string' || title.trim() === ''){
@@ -52,7 +52,49 @@ router.post('/', (req, res) => {
 // PATCH /todos/:id: change a todo's title and/or mark it done.
 // TODO: see "2. Update a todo" in README.md
 router.patch('/:id', (req, res) => {
-  res.status(501).json({ error: `PATCH /todos/${req.params.id} is not implemented yet` });
+  const id = Number(req.params.id);
+  const todo = todos.find((t) => t.id === id);
+
+  //if doesn't exist:
+  if (!todo) {
+    return res.status(404).json({
+      error: 'Todo not found'
+    });
+  }
+
+  // Check if at least one field was provided
+  if (title === undefined && done === undefined) {
+    return res.status(400).json({
+      error: 'At least one field is required'
+    });
+  }
+
+  // Validate title
+  if (title !== undefined &&
+      (typeof title !== 'string' || title.trim() === '')) {
+    return res.status(400).json({
+      error: 'Title must be a non-empty string'
+    });
+  }
+
+  // Validate done
+  if (done !== undefined && typeof done !== 'boolean') {
+    return res.status(400).json({
+      error: 'Done must be a boolean'
+    });
+  }
+
+  // Update only the fields provided
+  if (title !== undefined) {
+    todo.title = title.trim();
+  }
+
+  if (done !== undefined) {
+    todo.done = done;
+  }
+
+  // Return the updated todo
+  res.status(200).json(todo);
 });
 
 // DELETE /todos/:id: delete a todo.
