@@ -100,7 +100,22 @@ router.patch('/:id', (req, res) => {
 // DELETE /todos/:id: delete a todo.
 // TODO: see "3. Delete a todo" in README.md
 router.delete('/:id', (req, res) => {
-  res.status(501).json({ error: `DELETE /todos/${req.params.id} is not implemented yet` });
+
+    const id = Number(req.params.id);
+
+    // Find the position of the todo in the array
+    const index = todos.findIndex((t) => t.id === id);
+
+    // Check if the todo exists
+    if (index === -1) {
+        return res.status(404).json({ error: 'Todo not found' });
+    }
+
+    // Remove the todo from the array
+    todos.splice(index, 1);
+
+    // Send a response with no content
+    res.sendStatus(204);
 });
 
 // =====================================================================
